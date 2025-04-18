@@ -38,10 +38,10 @@ for doc in docs:
 You can run the ValyuTool module as follows:
 
 ```python
-from langchain_valyu import ValyuTool
+from langchain_valyu import ValyuSearchTool
 
-# Initialize the ValyuTool
-search_tool = ValyuTool(valyu_api_key="YOUR API KEY")
+# Initialize the ValyuSearchTool
+search_tool = ValyuSearchTool(valyu_api_key="YOUR API KEY")
 
 # Perform a search query
 search_results = search_tool._run(

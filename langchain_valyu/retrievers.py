@@ -11,18 +11,18 @@ from ._utilities import initialise_valyu_client
 from valyu import Valyu
 
 
-def _get_valyu_metadata(result: Dict[str, Any]) -> Dict[str, Any]:
+def _get_valyu_metadata(result) -> dict:
     metadata = {
-        "title": result.get("title"),
-        "url": result.get("url"),
-        "source": result.get("source"),
-        "price": result.get("price"),
-        "length": result.get("length"),
-        "data_type": result.get("data_type"),
-        "relevance_score": result.get("relevance_score"),
+        "title": getattr(result, "title", None),
+        "url": getattr(result, "url", None),
+        "source": getattr(result, "source", None),
+        "price": getattr(result, "price", None),
+        "length": getattr(result, "length", None),
+        "data_type": getattr(result, "data_type", None),
+        "relevance_score": getattr(result, "relevance_score", None),
     }
-    if "image_url" in result:
-        metadata["image_url"] = result["image_url"]
+    if getattr(result, "image_url", None):
+        metadata["image_url"] = getattr(result, "image_url")
     return metadata
 
 
@@ -46,7 +46,7 @@ class ValyuContextRetriever(BaseRetriever):
     def _get_relevant_documents(
         self, query: str, *, run_manager: CallbackManagerForRetrieverRun
     ) -> List[Document]:
-        response = self.client.context(
+        results = self.client.context(
             query=query,
             search_type=self.search_type,
             max_num_results=self.k,
@@ -54,10 +54,13 @@ class ValyuContextRetriever(BaseRetriever):
             query_rewrite=self.query_rewrite,
             max_price=self.max_price,
         )
-        results = response.get("results", [])
+        print(results)
+        results = getattr(results, "results", [])
+        for result in results:
+            print("Result:", result)
         return [
             Document(
-                page_content=str(result.get("content", "")),
+                page_content=str(getattr(result, "content", "")),
                 metadata=_get_valyu_metadata(result),
             )
             for result in results
