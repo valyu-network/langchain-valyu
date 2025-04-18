@@ -55,3 +55,5 @@ search_results = search_tool._run(
 
 print("Search Results:", search_results)
 ```
+
+You can learn more about our api from our [docs](https://docs.valyu.network/overview).
