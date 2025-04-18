@@ -1,6 +1,6 @@
 # langchain-valyu
 
-This package contains the LangChain integration with Valyu
+This package contains the LangChain integration with [Valyu](https://www.valyu.network/)
 
 ## Installation
 
