@@ -26,14 +26,15 @@ def _get_valyu_metadata(result) -> dict:
     return metadata
 
 
-class ValyuContextRetriever(BaseRetriever):
-    """Retriever for Valyu context search API."""
+class ValyuRetriever(BaseRetriever):
+    """Retriever for Valyu deep search API."""
 
     k: int = 5
     search_type: str = "all"
-    similarity_threshold: float = 0.4
-    query_rewrite: bool = False
+    relevance_threshold: float = 0.5
     max_price: float = 20.0
+    start_date: Optional[str] = None
+    end_date: Optional[str] = None
     client: Optional[Valyu] = Field(default=None)
     valyu_api_key: Optional[str] = Field(default=None)
 
@@ -46,13 +47,14 @@ class ValyuContextRetriever(BaseRetriever):
     def _get_relevant_documents(
         self, query: str, *, run_manager: CallbackManagerForRetrieverRun
     ) -> List[Document]:
-        results = self.client.context(
+        results = self.client.search(
             query=query,
             search_type=self.search_type,
             max_num_results=self.k,
-            similarity_threshold=self.similarity_threshold,
-            query_rewrite=self.query_rewrite,
+            relevance_threshold=self.relevance_threshold,
             max_price=self.max_price,
+            start_date=self.start_date,
+            end_date=self.end_date,
         )
         print(results)
         results = getattr(results, "results", [])

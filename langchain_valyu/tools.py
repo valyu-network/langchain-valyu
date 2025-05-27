@@ -1,6 +1,6 @@
 """Valyu tools."""
 
-from typing import Optional, Type, Dict, Any
+from typing import Optional, Type, Dict, Any, List
 
 from langchain_core.tools import BaseTool
 from pydantic import BaseModel, Field, model_validator
@@ -11,7 +11,7 @@ from ._utilities import initialise_valyu_client
 
 
 class ValyuToolInput(BaseModel):
-    """Input schema for Valyu context search tool."""
+    """Input schema for Valyu deep search tool."""
 
     query: str = Field(..., description="The input query to be processed.")
     search_type: str = Field(
@@ -20,24 +20,28 @@ class ValyuToolInput(BaseModel):
     )
     max_num_results: int = Field(
         default=5,
-        description="The maximum number of results to be returned. Defaults to 5.",
+        description="The maximum number of results to be returned (1-20). Defaults to 5.",
     )
-    similarity_threshold: float = Field(
-        default=0.4,
-        description="The minimum similarity required for a result to be included. Defaults to 0.4.",
-    )
-    query_rewrite: bool = Field(
-        default=False,
-        description="Enables or disables query optimisation. Defaults to False.",
+    relevance_threshold: float = Field(
+        default=0.5,
+        description="The minimum relevance score required for a result to be included (0.0-1.0). Defaults to 0.5.",
     )
     max_price: float = Field(
         default=20.0,
-        description="Maximum price per thousand queries (CPM). Defaults to 20.0.",
+        description="Maximum cost in dollars for this search. Defaults to 20.0.",
+    )
+    start_date: Optional[str] = Field(
+        default=None,
+        description="Start date for time filtering in YYYY-MM-DD format (optional).",
+    )
+    end_date: Optional[str] = Field(
+        default=None,
+        description="End date for time filtering in YYYY-MM-DD format (optional).",
     )
 
 
 class ValyuSearchTool(BaseTool):  # type: ignore[override]
-    """Valyu context search tool.
+    """Valyu deep search tool.
 
     Setup:
         Install ``valyu`` and set environment variable ``VALYU_API_KEY``.
@@ -50,9 +54,9 @@ class ValyuSearchTool(BaseTool):  # type: ignore[override]
     This tool provides access to Valyu's deep search API, allowing you to search and retrieve relevant content from proprietary and public sources.
     """
 
-    name: str = "valyu_context_search"
+    name: str = "valyu_deep_search"
     description: str = (
-        "A wrapper around the Valyu context search API to search for relevant content from proprietary and web sources. "
+        "A wrapper around the Valyu deep search API to search for relevant content from proprietary and web sources. "
         "Input is a query and search parameters. "
         "Output is a JSON object with the search results."
     )
@@ -73,19 +77,21 @@ class ValyuSearchTool(BaseTool):  # type: ignore[override]
         query: str,
         search_type: str = "all",
         max_num_results: int = 5,
-        similarity_threshold: float = 0.4,
-        query_rewrite: bool = False,
+        relevance_threshold: float = 0.5,
         max_price: float = 20.0,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
     ) -> dict:
-        """Use the tool to perform a Valyu context search."""
+        """Use the tool to perform a Valyu deep search."""
         try:
-            response = self.client.context(
+            response = self.client.search(
                 query=query,
                 search_type=search_type,
                 max_num_results=max_num_results,
-                similarity_threshold=similarity_threshold,
-                query_rewrite=query_rewrite,
+                relevance_threshold=relevance_threshold,
                 max_price=max_price,
+                start_date=start_date,
+                end_date=end_date,
             )
             return response
         except Exception as e:
