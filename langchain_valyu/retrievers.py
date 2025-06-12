@@ -29,10 +29,11 @@ def _get_valyu_metadata(result) -> dict:
 class ValyuRetriever(BaseRetriever):
     """Retriever for Valyu deep search API."""
 
-    k: int = 5
+    k: int = 10
     search_type: str = "all"
     relevance_threshold: float = 0.5
-    max_price: float = 20.0
+    max_price: float = 50.0
+    is_tool_call: bool = True
     start_date: Optional[str] = None
     end_date: Optional[str] = None
     client: Optional[Valyu] = Field(default=None)
@@ -53,6 +54,7 @@ class ValyuRetriever(BaseRetriever):
             max_num_results=self.k,
             relevance_threshold=self.relevance_threshold,
             max_price=self.max_price,
+            is_tool_call=self.is_tool_call,
             start_date=self.start_date,
             end_date=self.end_date,
         )
