@@ -19,7 +19,7 @@ class ValyuToolInput(BaseModel):
         description="Type of search: 'all', 'proprietary', or 'web'. Defaults to 'all'.",
     )
     max_num_results: int = Field(
-        default=5,
+        default=10,
         description="The maximum number of results to be returned (1-20). Defaults to 5.",
     )
     relevance_threshold: float = Field(
@@ -27,8 +27,12 @@ class ValyuToolInput(BaseModel):
         description="The minimum relevance score required for a result to be included (0.0-1.0). Defaults to 0.5.",
     )
     max_price: float = Field(
-        default=20.0,
+        default=50.0,
         description="Maximum cost in dollars for this search. Defaults to 20.0.",
+    )
+    is_tool_call: bool = Field(
+        default=True,
+        description="Set to True when called by AI agents/tools (optimized for LLM consumption). Defaults to True.",
     )
     start_date: Optional[str] = Field(
         default=None,
@@ -79,6 +83,7 @@ class ValyuSearchTool(BaseTool):  # type: ignore[override]
         max_num_results: int = 5,
         relevance_threshold: float = 0.5,
         max_price: float = 20.0,
+        is_tool_call: bool = True,
         start_date: Optional[str] = None,
         end_date: Optional[str] = None,
     ) -> dict:
@@ -90,6 +95,7 @@ class ValyuSearchTool(BaseTool):  # type: ignore[override]
                 max_num_results=max_num_results,
                 relevance_threshold=relevance_threshold,
                 max_price=max_price,
+                is_tool_call=is_tool_call,
                 start_date=start_date,
                 end_date=end_date,
             )

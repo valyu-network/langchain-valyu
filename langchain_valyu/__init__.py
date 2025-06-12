@@ -1,8 +1,8 @@
-from langchain_valyu.retrievers import ValyuContextRetriever
+from langchain_valyu.retrievers import ValyuRetriever
 from langchain_valyu.tools import ValyuSearchTool
 
 
 __all__ = [
-    "ValyuContextRetriever",
+    "ValyuRetriever",
     "ValyuSearchTool",
 ]
