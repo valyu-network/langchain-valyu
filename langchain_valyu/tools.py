@@ -1,6 +1,6 @@
 """Valyu tools."""
 
-from typing import Optional, Type, Dict, Any, List
+from typing import Optional, Type, Dict, Any, List, Union
 
 from langchain_core.tools import BaseTool
 from pydantic import BaseModel, Field, model_validator
@@ -41,6 +41,22 @@ class ValyuToolInput(BaseModel):
     end_date: Optional[str] = Field(
         default=None,
         description="End date for time filtering in YYYY-MM-DD format (optional).",
+    )
+    include_sources: Optional[List[str]] = Field(
+        default=None,
+        description="List of URLs, domains, or datasets to include in search results (optional).",
+    )
+    excluded_sources: Optional[List[str]] = Field(
+        default=None,
+        description="List of URLs, domains, or datasets to exclude from search results (optional).",
+    )
+    response_length: Optional[Union[int, str]] = Field(
+        default=None,
+        description="Content length per item: int for character count, or 'short' (25k), 'medium' (50k), 'large' (100k), 'max' (full content) (optional).",
+    )
+    country_code: Optional[str] = Field(
+        default=None,
+        description="2-letter ISO country code (e.g., 'GB', 'US') to bias search results to a specific country (optional).",
     )
 
 
@@ -86,6 +102,10 @@ class ValyuSearchTool(BaseTool):  # type: ignore[override]
         is_tool_call: bool = True,
         start_date: Optional[str] = None,
         end_date: Optional[str] = None,
+        include_sources: Optional[List[str]] = None,
+        excluded_sources: Optional[List[str]] = None,
+        response_length: Optional[Union[int, str]] = None,
+        country_code: Optional[str] = None,
     ) -> dict:
         """Use the tool to perform a Valyu deep search."""
         try:
@@ -98,6 +118,9 @@ class ValyuSearchTool(BaseTool):  # type: ignore[override]
                 is_tool_call=is_tool_call,
                 start_date=start_date,
                 end_date=end_date,
+                excluded_sources=excluded_sources,
+                response_length=response_length,
+                country_code=country_code,
             )
             return response
         except Exception as e:

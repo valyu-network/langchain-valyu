@@ -1,6 +1,6 @@
 """Valyu retrievers."""
 
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 from langchain_core.callbacks import CallbackManagerForRetrieverRun
 from langchain_core.documents import Document
@@ -36,6 +36,10 @@ class ValyuRetriever(BaseRetriever):
     is_tool_call: bool = True
     start_date: Optional[str] = None
     end_date: Optional[str] = None
+    include_sources: Optional[List[str]] = None
+    excluded_sources: Optional[List[str]] = None
+    response_length: Optional[Union[int, str]] = None
+    country_code: Optional[str] = None
     client: Optional[Valyu] = Field(default=None)
     valyu_api_key: Optional[str] = Field(default=None)
 
@@ -57,6 +61,10 @@ class ValyuRetriever(BaseRetriever):
             is_tool_call=self.is_tool_call,
             start_date=self.start_date,
             end_date=self.end_date,
+            include_sources=self.include_sources,
+            excluded_sources=self.excluded_sources,
+            response_length=self.response_length,
+            country_code=self.country_code,
         )
         print(results)
         results = getattr(results, "results", [])
