@@ -61,7 +61,7 @@ class ValyuRetriever(BaseRetriever):
             is_tool_call=self.is_tool_call,
             start_date=self.start_date,
             end_date=self.end_date,
-            included_sources=self.include_sources,
+            included_sources=self.included_sources,
             excluded_sources=self.excluded_sources,
             response_length=self.response_length,
             country_code=self.country_code,
