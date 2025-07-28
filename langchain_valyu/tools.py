@@ -42,7 +42,7 @@ class ValyuToolInput(BaseModel):
         default=None,
         description="End date for time filtering in YYYY-MM-DD format (optional).",
     )
-    include_sources: Optional[List[str]] = Field(
+    included_sources: Optional[List[str]] = Field(
         default=None,
         description="List of URLs, domains, or datasets to include in search results (optional).",
     )
@@ -102,7 +102,7 @@ class ValyuSearchTool(BaseTool):  # type: ignore[override]
         is_tool_call: bool = True,
         start_date: Optional[str] = None,
         end_date: Optional[str] = None,
-        include_sources: Optional[List[str]] = None,
+        included_sources: Optional[List[str]] = None,
         excluded_sources: Optional[List[str]] = None,
         response_length: Optional[Union[int, str]] = None,
         country_code: Optional[str] = None,
@@ -118,6 +118,7 @@ class ValyuSearchTool(BaseTool):  # type: ignore[override]
                 is_tool_call=is_tool_call,
                 start_date=start_date,
                 end_date=end_date,
+                included_sources=included_sources,
                 excluded_sources=excluded_sources,
                 response_length=response_length,
                 country_code=country_code,

@@ -36,7 +36,7 @@ class ValyuRetriever(BaseRetriever):
     is_tool_call: bool = True
     start_date: Optional[str] = None
     end_date: Optional[str] = None
-    include_sources: Optional[List[str]] = None
+    included_sources: Optional[List[str]] = None
     excluded_sources: Optional[List[str]] = None
     response_length: Optional[Union[int, str]] = None
     country_code: Optional[str] = None
@@ -61,7 +61,7 @@ class ValyuRetriever(BaseRetriever):
             is_tool_call=self.is_tool_call,
             start_date=self.start_date,
             end_date=self.end_date,
-            include_sources=self.include_sources,
+            included_sources=self.include_sources,
             excluded_sources=self.excluded_sources,
             response_length=self.response_length,
             country_code=self.country_code,
