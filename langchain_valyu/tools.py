@@ -1,6 +1,6 @@
 """Valyu tools."""
 
-from typing import Optional, Type, Dict, Any, List, Union
+from typing import Optional, Type, Dict, Any, List, Union, Literal
 
 from langchain_core.tools import BaseTool
 from pydantic import BaseModel, Field, model_validator
@@ -58,6 +58,19 @@ class ValyuToolInput(BaseModel):
         default=None,
         description="2-letter ISO country code (e.g., 'GB', 'US') to bias search results to a specific country (optional).",
     )
+    fast_mode: bool = Field(
+        default=False,
+        description="Enable fast mode for faster but shorter results. Good for general purpose queries. Defaults to False.",
+    )
+
+
+class ValyuContentsToolInput(BaseModel):
+    """Input schema for Valyu contents extraction tool."""
+
+    urls: List[str] = Field(
+        ...,
+        description="List of URLs to extract content from (maximum 10 URLs per request).",
+    )
 
 
 class ValyuSearchTool(BaseTool):  # type: ignore[override]
@@ -106,6 +119,7 @@ class ValyuSearchTool(BaseTool):  # type: ignore[override]
         excluded_sources: Optional[List[str]] = None,
         response_length: Optional[Union[int, str]] = None,
         country_code: Optional[str] = None,
+        fast_mode: bool = False,
     ) -> dict:
         """Use the tool to perform a Valyu deep search."""
         try:
@@ -122,6 +136,63 @@ class ValyuSearchTool(BaseTool):  # type: ignore[override]
                 excluded_sources=excluded_sources,
                 response_length=response_length,
                 country_code=country_code,
+                fast_mode=fast_mode,
+            )
+            return response
+        except Exception as e:
+            return repr(e)
+
+
+class ValyuContentsTool(BaseTool):  # type: ignore[override]
+    """Valyu contents extraction tool.
+
+    Setup:
+        Install ``valyu`` and set environment variable ``VALYU_API_KEY``.
+
+        .. code-block:: bash
+
+            pip install valyu
+            export VALYU_API_KEY="your-api-key"
+
+    This tool provides access to Valyu's contents API, allowing you to extract clean, structured content from web pages.
+    """
+
+    name: str = "valyu_contents_extract"
+    description: str = (
+        "A wrapper around the Valyu contents API to extract clean content from web pages. "
+        "Input is a list of URLs. "
+        "Output is a JSON object with the extracted content from each URL."
+    )
+    args_schema: Type[BaseModel] = ValyuContentsToolInput
+
+    client: Optional[Valyu] = Field(default=None)
+    valyu_api_key: Optional[str] = Field(default=None)
+
+    # User-configurable parameters (not exposed to model)
+    summary: Optional[Union[bool, str, Dict[str, Any]]] = Field(default=None)
+    extract_effort: Optional[Literal["normal", "high", "auto"]] = Field(
+        default="normal"
+    )
+    response_length: Optional[Union[int, str]] = Field(default="short")
+
+    @model_validator(mode="before")
+    @classmethod
+    def validate_environment(cls, values: Dict[str, Any]) -> Dict[str, Any]:
+        """Validate the environment and initialise the Valyu client."""
+        values = initialise_valyu_client(values)
+        return values
+
+    def _run(
+        self,
+        urls: List[str],
+    ) -> dict:
+        """Use the tool to extract content from URLs."""
+        try:
+            response = self.client.contents(
+                urls=urls,
+                summary=self.summary,
+                extract_effort=self.extract_effort,
+                response_length=self.response_length,
             )
             return response
         except Exception as e:
