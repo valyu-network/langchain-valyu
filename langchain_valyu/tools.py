@@ -121,7 +121,8 @@ class ValyuSearchTool(BaseTool):  # type: ignore[override]
         country_code: Optional[str] = None,
         fast_mode: bool = False,
     ) -> dict:
-        """Use the tool to perform a Valyu deep search."""
+        """Use the tool to perform a Valyu deep search.
+        """
         try:
             response = self.client.search(
                 query=query,
@@ -138,9 +139,18 @@ class ValyuSearchTool(BaseTool):  # type: ignore[override]
                 country_code=country_code,
                 fast_mode=fast_mode,
             )
+
+            if hasattr(response, "model_dump"):
+                return response.model_dump()
+            if hasattr(response, "dict"):
+                return response.dict()
             return response
         except Exception as e:
-            return repr(e)
+            return {
+                "success": False,
+                "error": str(e),
+                "error_type": e.__class__.__name__,
+            }
 
 
 class ValyuContentsTool(BaseTool):  # type: ignore[override]
@@ -186,7 +196,8 @@ class ValyuContentsTool(BaseTool):  # type: ignore[override]
         self,
         urls: List[str],
     ) -> dict:
-        """Use the tool to extract content from URLs."""
+        """Use the tool to extract content from URLs.
+        """
         try:
             response = self.client.contents(
                 urls=urls,
@@ -194,6 +205,15 @@ class ValyuContentsTool(BaseTool):  # type: ignore[override]
                 extract_effort=self.extract_effort,
                 response_length=self.response_length,
             )
+
+            if hasattr(response, "model_dump"):
+                return response.model_dump()
+            if hasattr(response, "dict"):
+                return response.dict()
             return response
         except Exception as e:
-            return repr(e)
+            return {
+                "success": False,
+                "error": str(e),
+                "error_type": e.__class__.__name__,
+            }
